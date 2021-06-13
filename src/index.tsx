@@ -56,7 +56,7 @@ interface CustomImageProps {
   layout?: 'intrinsic' | 'fixed' | 'responsive' | 'fill'
 }
 
-export type NextImageCloudinaryProps = ImageProps & CustomImageProps
+export type NextImageCloudinaryProps = CustomImageProps & ImageProps
 
 const MyImage = ({
   src,
