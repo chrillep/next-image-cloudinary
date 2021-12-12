@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Image, { ImageLoaderProps, ImageProps } from 'next/image'
+// docs: https://cloudinary-build-url.netlify.app/
 import { buildImageUrl } from 'cloudinary-build-url'
 import type { CldOptions } from '@cld-apis/types'
 
@@ -53,25 +54,28 @@ const MyImage = ({
     <Image
       // @ts-ignore
       layout={layout}
-      loader={(params: ImageLoaderProps): string =>
-        myLoader({
+      loader={(params: ImageLoaderProps): string => {
+        const { cloud, transformations } = cloudOptions
+        const { resize, ...restTransformations } = transformations || {}
+        return myLoader({
           src: params.src,
           aspectRatio,
           keepAspectRatio,
           options: {
             cloud: {
-              cloudName: cloudOptions.cloud?.cloudName,
+              cloudName: cloud?.cloudName,
             },
             transformations: {
               quality: params.quality,
               resize: {
+                ...(resize || {}),
                 width: params.width,
               },
-              ...(cloudOptions.transformations || {}),
+              ...(restTransformations || {}),
             },
           },
         })
-      }
+      }}
       src={src}
       alt={alt}
       width={width}

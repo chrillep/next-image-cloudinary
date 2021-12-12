@@ -1,6 +1,6 @@
 {
   "name": "next-image-cloudinary",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A component using nextjs next/image with cloudinary types",
   "author": "kedarguy",
   "license": "Apache-2.0",
