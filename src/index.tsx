@@ -1,58 +1,37 @@
 import * as React from 'react'
 import Image, { ImageLoaderProps, ImageProps } from 'next/image'
+import { buildImageUrl } from 'cloudinary-build-url'
+import type { CldOptions } from '@cld-apis/types'
 
-type CloudinaryCrop =
-  | 'crop'
-  | 'fill'
-  | 'fill_pad'
-  | 'fit'
-  | 'imagga_crop'
-  | 'imagga_scale'
-  | 'lfill'
-  | 'limit'
-  | 'lpad'
-  | 'mfit'
-  | 'mpad'
-  | 'pad'
-  | 'scale'
-  | 'thumb'
-
-interface AdditionalLoaderArgs {
-  transformations?: string
+interface LoaderArgs {
+  src: string
   keepAspectRatio?: boolean
-  aspectRatio: number
-  crop?: CloudinaryCrop
-  cloudName: string
+  aspectRatio?: number
+  options: CldOptions
 }
 const myLoader = ({
   src,
-  width,
-  quality,
-  transformations,
   keepAspectRatio,
   aspectRatio,
-  crop,
-  cloudName,
-}: ImageLoaderProps & AdditionalLoaderArgs): string => {
-  const params = ['f_auto', `w_${width}`, `q_${quality || 'auto'}`]
-  if (keepAspectRatio && !isNaN(aspectRatio) && !isNaN(width)) {
-    params.push(`h_${Math.round(width * aspectRatio)}`)
+  options,
+}: LoaderArgs): string => {
+  if (
+    keepAspectRatio &&
+    aspectRatio &&
+    !isNaN(aspectRatio) &&
+    options.transformations?.resize !== undefined &&
+    typeof options.transformations?.resize?.width
+  ) {
+    options.transformations.resize.height = Math.round(
+      Number(options.transformations?.resize?.width) * aspectRatio
+    )
   }
-  if (crop) {
-    params.push(`c_${crop}`)
-  }
-  const paramsString = `${`${params.join(',')}${
-    transformations ? `,${transformations}` : ''
-  }`}`
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${paramsString}/${src}`
+  return buildImageUrl(src, options)
 }
 
 interface CustomImageProps {
-  transformations?: string
   keepAspectRatio?: boolean
-  crop?: CloudinaryCrop
-  cloudName: string
+  cloudOptions: CldOptions
   layout?: 'intrinsic' | 'fixed' | 'responsive' | 'fill'
 }
 
@@ -63,12 +42,10 @@ const MyImage = ({
   alt,
   width,
   height,
-  transformations,
   className,
   keepAspectRatio = true,
-  crop,
   layout = 'intrinsic',
-  cloudName,
+  cloudOptions,
   ...rest
 }: NextImageCloudinaryProps): JSX.Element => {
   const aspectRatio = Number(height) / Number(width)
@@ -78,12 +55,21 @@ const MyImage = ({
       layout={layout}
       loader={(params: ImageLoaderProps): string =>
         myLoader({
-          ...params,
-          transformations,
+          src: params.src,
           aspectRatio,
           keepAspectRatio,
-          crop,
-          cloudName,
+          options: {
+            cloud: {
+              cloudName: cloudOptions.cloud?.cloudName,
+            },
+            transformations: {
+              quality: params.quality,
+              resize: {
+                width: params.width,
+              },
+              ...(cloudOptions.transformations || {}),
+            },
+          },
         })
       }
       src={src}
