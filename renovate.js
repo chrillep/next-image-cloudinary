@@ -4,7 +4,7 @@
   "extends": [
     "config:js-lib",
     ":automergeMinor",
-    ":preserveSemverRanges",
+    ":preserveSemverRanges"
   ],
   "includeForks": true,
   "labels": ["dependencies"],
