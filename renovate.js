@@ -2,10 +2,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:js-lib",
     ":automergeMinor",
     ":preserveSemverRanges",
-    ":pinOnlyDevDependencies"
   ],
   "includeForks": true,
   "labels": ["dependencies"],
